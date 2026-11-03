@@ -1,93 +1,114 @@
 # 🎓 Scholarship AI Assistant
 
-An AI-powered assistant that answers questions about the Heydar Aliyev International Education Grant Program using information extracted from the official scholarship document.
+An AI-powered question-answering system that helps applicants understand the **Heydar Aliyev International Education Grant Program (2026–2027)**.
 
-The application combines **Retrieval-Augmented Generation (RAG)** with a local Large Language Model (LLM) to help users find information about scholarship benefits, required documents, and application procedures.
-
-It provides both an interactive **Streamlit interface** and a **FastAPI REST API**, allowing users to interact with the same RAG system through a web interface or programmatically.
+The project uses **Retrieval-Augmented Generation (RAG)** to retrieve relevant information from an official scholarship PDF and generate answers using a locally running Large Language Model (LLM).
 
 ## ✨ Features
 
-- **PDF Processing:** Extracts text from the scholarship document.
-- **Semantic Search:** Uses Sentence Transformers to represent text as embeddings.
-- **Vector Database:** Uses ChromaDB to retrieve relevant information.
-- **AI-Powered Answers:** Uses Qwen 2.5 1.5B through Ollama to generate answers locally.
-- **Interactive Interface:** Built with Streamlit.
-- **REST API:** Built with FastAPI to expose the RAG pipeline through API endpoints.
-- **API Documentation:** Provides interactive API documentation through Swagger UI.
-- **Source References:** Displays the document sections used to answer questions.
+- **PDF Processing:** Extracts and processes scholarship information from PDF documents.
+- **Semantic Search:** Uses sentence embeddings to retrieve relevant information.
+- **Vector Database:** Stores document embeddings using ChromaDB.
+- **AI-Powered Answers:** Generates context-based answers using Qwen 2.5.
+- **Source References:** Displays the document sections used to generate answers.
+- **Interactive Chat Interface:** Provides a conversational interface built with Streamlit.
+- **REST API:** Exposes question-answering functionality through FastAPI.
+- **Local LLM Execution:** Uses Ollama to run the language model locally.
 
 ## 🛠️ Technologies Used
 
-- Python
-- Streamlit
-- FastAPI
-- REST API
-- Retrieval-Augmented Generation (RAG)
-- Sentence Transformers (`all-MiniLM-L6-v2`)
-- ChromaDB
-- Ollama
-- Qwen 2.5 1.5B
-- PyMuPDF
+| Technology | Purpose |
+|---|---|
+| Python | Core programming language |
+| Streamlit | Interactive web interface |
+| FastAPI | REST API development |
+| Sentence Transformers | Text embeddings |
+| ChromaDB | Vector database |
+| Ollama | Local LLM execution |
+| Qwen 2.5 (1.5B) | Language model |
+| PyMuPDF | PDF text extraction |
+
+## 🧠 RAG Architecture
+
+The system follows a Retrieval-Augmented Generation (RAG) workflow:
+
+1. **Document Loading:** Extracts text from the scholarship PDF using PyMuPDF.
+2. **Text Processing:** Splits the extracted text into smaller overlapping chunks.
+3. **Embedding Generation:** Converts text chunks into vector representations using `all-MiniLM-L6-v2`.
+4. **Vector Storage:** Stores embeddings in ChromaDB.
+5. **Information Retrieval:** Retrieves relevant chunks based on the user's question.
+6. **Answer Generation:** Sends the retrieved context and question to Qwen 2.5 through Ollama.
+7. **Response:** Returns an answer with its corresponding source sections.
 
 ## 📁 Project Structure
 
 ```text
 Scholarship-AI-Assistant/
-├── app.py
-├── api.py
-├── scholarship_fixed.pdf
-├── requirements.txt
-└── README.md
+│
+├── app.py                  # Streamlit chat interface
+├── api.py                  # FastAPI application
+├── rag_pipeline.py         # Core RAG implementation
+├── scholarship_fixed.pdf   # Scholarship document
+├── requirements.txt        # Python dependencies
+└── README.md               # Project documentation
 ```
 
-## ⚙️ Requirements
+## ⚙️ Installation & Setup
 
-Before running the application, install:
-
-- Python
-- Ollama
-- The Qwen 2.5 1.5B model
-- The Python dependencies listed in `requirements.txt`
-
-## 🚀 Installation and Usage
-
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Anas-alkesbah/Scholarship-AI-Assistant.git
 cd Scholarship-AI-Assistant
 ```
 
-### 2. Install Python dependencies
+### 2. Create a Virtual Environment
+
+```bash
+python -m venv venv
+```
+
+Activate it on Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Install and start the local language model
+### 4. Install and Configure Ollama
 
-Install Ollama from [ollama.com](https://ollama.com/), then download the model:
+Download and install Ollama:
+
+https://ollama.com/download
+
+Pull the required language model:
 
 ```bash
 ollama pull qwen2.5:1.5b
 ```
 
-Make sure the Ollama service is running before launching the application.
+Make sure Ollama is running before starting the application.
 
-### 4. Run the Streamlit application
+## 🚀 Running the Application
 
-Ensure that `scholarship_fixed.pdf` is in the same directory as `app.py`, then run:
+### Streamlit Interface
 
 ```bash
 streamlit run app.py
 ```
 
-The application will open in your browser, usually at `http://localhost:8501`.
+The application will be available at:
 
-### 5. Run the FastAPI server
+```text
+http://localhost:8501
+```
 
-In a separate terminal, run:
+### FastAPI Server
 
 ```bash
 uvicorn api:app --reload
@@ -99,47 +120,53 @@ The API will be available at:
 http://127.0.0.1:8000
 ```
 
-### 6. Explore the API documentation
-
-FastAPI provides interactive API documentation through Swagger UI:
+Interactive API documentation:
 
 ```text
 http://127.0.0.1:8000/docs
 ```
 
-Use the `/ask` endpoint to submit questions and receive answers from the RAG system.
+## 🔌 API Usage
 
-## 💡 Example Questions
+### POST `/ask`
 
-- What are the scholarship benefits?
-- What documents are required for the scholarship?
-- How do applicants apply for the scholarship?
-- What language proficiency requirements apply?
+Send a question about the scholarship.
 
-## 🧠 How It Works
+**Request:**
 
-1. Extracts text from the scholarship PDF.
-2. Splits the document into overlapping text chunks.
-3. Converts text into embeddings using Sentence Transformers.
-4. Stores the embeddings in ChromaDB.
-5. Retrieves relevant information based on the user's question.
-6. Sends the retrieved context to the Qwen language model to generate an answer.
-7. Returns the generated answer through the Streamlit interface or FastAPI endpoint.
+```json
+{
+  "question": "What is the minimum GPA required?"
+}
+```
 
-## ⚠️ Notes and Limitations
+**Response:**
 
-- The application requires a local Ollama installation and a downloaded language model.
-- Answer quality depends on the extracted document text and the language model's ability to use the retrieved context.
-- Scholarship deadlines and requirements may change. Always consult the latest official scholarship announcement before applying.
-- The API is currently designed for local use and testing.
-- This project is an educational AI application and is not an official service of the scholarship provider.
+```json
+{
+  "question": "What is the minimum GPA required?",
+  "answer": "The minimum GPA required is 70...",
+  "sources": [
+    "Required documents",
+    "Application criteria"
+  ]
+}
+```
+
+### GET `/health`
+
+Checks whether the RAG system has been initialized and returns information about the loaded document and vector collection.
+
+## 📌 Current Scope
+
+The current implementation is designed to answer questions based on the provided scholarship document.
+
+The system uses local model execution through Ollama and requires the PDF document to be available in the project directory.
 
 ## 👨‍💻 Author
 
-**Anas Al-Kesbah**
+**Anas Alkesbah**
 
-AI Graduate | Artificial Intelligence Projects
+Artificial Intelligence Graduate
 
----
-
-Built as a practical project exploring RAG, local language models, semantic search, interactive AI applications, and REST API development.
+[GitHub](https://github.com/Anas-alkesbah)
